@@ -14,7 +14,10 @@ class WooCommerceClient:
         # WooCommerce supports Basic Auth over HTTPS with Consumer Key and Secret
         self.auth = (consumer_key, consumer_secret)
         self.base_url = f"{self.store_url}/wp-json/wc/v3"
-        self.client = httpx.AsyncClient(auth=self.auth, base_url=self.base_url, timeout=10.0)
+        
+        # Disable SSL verification for local dev environments (like LocalWP)
+        is_local = ".local" in self.store_url or "localhost" in self.store_url
+        self.client = httpx.AsyncClient(auth=self.auth, base_url=self.base_url, timeout=10.0, verify=not is_local)
 
     @retry(
         wait=wait_exponential(multiplier=1, min=2, max=10),
